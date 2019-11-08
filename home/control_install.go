@@ -44,9 +44,10 @@ func handleInstallGetAddresses(w http.ResponseWriter, r *http.Request) {
 }
 
 type checkConfigReqEnt struct {
-	Port    int    `json:"port"`
-	IP      string `json:"ip"`
-	Autofix bool   `json:"autofix"`
+	Port        int    `json:"port"`
+	IP          string `json:"ip"`
+	Autofix     bool   `json:"autofix"`
+	SetStaticIP bool   `json:"set_static_ip"`
 }
 type checkConfigReq struct {
 	Web checkConfigReqEnt `json:"web"`
@@ -57,9 +58,15 @@ type checkConfigRespEnt struct {
 	Status     string `json:"status"`
 	CanAutofix bool   `json:"can_autofix"`
 }
+type staticIPJSON struct {
+	Static string `json:"static"`
+	IP     string `json:"ip"`
+	Error  string `json:"error"`
+}
 type checkConfigResp struct {
-	Web checkConfigRespEnt `json:"web"`
-	DNS checkConfigRespEnt `json:"dns"`
+	Web      checkConfigRespEnt `json:"web"`
+	DNS      checkConfigRespEnt `json:"dns"`
+	StaticIP staticIPJSON       `json:"static_ip"`
 }
 
 // Check if ports are available, respond with results
@@ -104,6 +111,28 @@ func handleInstallCheckConfig(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			respData.DNS.Status = fmt.Sprintf("%v", err)
+
+		} else {
+
+			interfaceName := getInterfaceByIP(reqData.DNS.IP)
+			staticIPStatus := "yes"
+
+			if reqData.DNS.SetStaticIP {
+				err = setStaticIP(interfaceName)
+				staticIPStatus = "error"
+				respData.StaticIP.Error = err.Error()
+			} else {
+				// check if we have a static IP
+				isStaticIP, err := hasStaticIP(interfaceName)
+				if err != nil {
+					staticIPStatus = "error"
+					respData.StaticIP.Error = err.Error()
+				} else if !isStaticIP {
+					staticIPStatus = "no"
+					respData.StaticIP.IP = getFullIP(interfaceName)
+				}
+			}
+			respData.StaticIP.Static = staticIPStatus
 		}
 	}
 

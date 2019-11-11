@@ -131,6 +131,7 @@ type FilteringConfig struct {
 	AllServers         bool     `yaml:"all_servers"`          // if true, parallel queries to all configured upstream servers are enabled
 
 	EnableEDNSClientSubnet bool `yaml:"edns_client_subnet"` // Enable EDNS Client Subnet option
+	DisableIPv6            bool `yaml:"disable_ipv6"`
 
 	AllowedClients    []string `yaml:"allowed_clients"`    // IP addresses of whitelist clients
 	DisallowedClients []string `yaml:"disallowed_clients"` // IP addresses of clients that should be blocked

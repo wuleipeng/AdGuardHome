@@ -11,6 +11,7 @@ import (
 	"github.com/AdguardTeam/AdGuardHome/dhcpd"
 	"github.com/AdguardTeam/AdGuardHome/dnsfilter"
 	"github.com/AdguardTeam/AdGuardHome/dnsforward"
+	"github.com/AdguardTeam/AdGuardHome/mitmproxy"
 	"github.com/AdguardTeam/AdGuardHome/querylog"
 	"github.com/AdguardTeam/AdGuardHome/stats"
 	"github.com/AdguardTeam/golibs/file"
@@ -69,6 +70,7 @@ type configuration struct {
 	dhcpServer  *dhcpd.Server
 	httpServer  *http.Server
 	httpsServer HTTPSServer
+	mitmProxy   *mitmproxy.MITMProxy
 
 	BindHost     string `yaml:"bind_host"`     // BindHost is the IP address of the HTTP server to bind to
 	BindPort     int    `yaml:"bind_port"`     // BindPort is the port the HTTP server
@@ -85,6 +87,7 @@ type configuration struct {
 	Filters   []filter           `yaml:"filters"`
 	UserRules []string           `yaml:"user_rules"`
 	DHCP      dhcpd.ServerConfig `yaml:"dhcp"`
+	MITM      mitmproxy.Config   `yaml:"mitmproxy"`
 
 	// Note: this array is filled only before file read/write and then it's cleared
 	Clients []clientObject `yaml:"clients"`
@@ -332,6 +335,12 @@ func (c *configuration) write() error {
 		c := dhcpd.ServerConfig{}
 		config.dhcpServer.WriteDiskConfig(&c)
 		config.DHCP = c
+	}
+
+	if config.mitmProxy != nil {
+		c := mitmproxy.Config{}
+		config.mitmProxy.WriteDiskConfig(&c)
+		config.MITM = c
 	}
 
 	configFile := config.getConfigFilename()

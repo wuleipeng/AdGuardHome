@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/AdguardTeam/AdGuardHome/dhcpd"
+	"github.com/AdguardTeam/AdGuardHome/mitmproxy"
 	"github.com/AdguardTeam/golibs/log"
 	"github.com/NYTimes/gziphandler"
 	"github.com/gobuffalo/packr"
@@ -147,10 +148,24 @@ func run(args options) {
 		}
 
 		initDNSServer()
+
+		if config.MITM.ListenAddr != "" {
+			config.MITM.ConfigModified = onConfigModified
+			config.MITM.HTTPRegister = httpRegister
+			config.mitmProxy = mitmproxy.New(config.MITM)
+		}
+
 		go func() {
 			err = startDNSServer()
 			if err != nil {
 				log.Fatal(err)
+			}
+
+			if config.mitmProxy != nil {
+				err = config.mitmProxy.Start()
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		}()
 
@@ -365,10 +380,15 @@ func configureLogger(args options) {
 func cleanup() {
 	log.Info("Stopping AdGuard Home")
 
+	if config.mitmProxy != nil {
+		config.mitmProxy.Close()
+	}
+
 	err := stopDNSServer()
 	if err != nil {
 		log.Error("Couldn't stop DNS server: %s", err)
 	}
+
 	err = stopDHCPServer()
 	if err != nil {
 		log.Error("Couldn't stop DHCP server: %s", err)

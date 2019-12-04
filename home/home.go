@@ -153,6 +153,9 @@ func run(args options) {
 			config.MITM.ConfigModified = onConfigModified
 			config.MITM.HTTPRegister = httpRegister
 			config.mitmProxy = mitmproxy.New(config.MITM)
+			if config.mitmProxy == nil {
+				log.Fatal("")
+			}
 		}
 
 		go func() {

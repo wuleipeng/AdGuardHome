@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/AdguardTeam/dnsproxy v0.22.0
 	github.com/AdguardTeam/golibs v0.3.0
+	github.com/AdguardTeam/gomitmproxy v0.1.2
 	github.com/AdguardTeam/urlfilter v0.7.0
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/etcd-io/bbolt v1.3.3
@@ -20,6 +21,6 @@ require (
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/crypto v0.0.0-20191001170739-f9e2070545dc
 	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
-	golang.org/x/sys v0.0.0-20191002091554-b397fe3ad8ed
+	golang.org/x/sys v0.0.0-20191008105621-543471e840be
 	gopkg.in/yaml.v2 v2.2.3
 )

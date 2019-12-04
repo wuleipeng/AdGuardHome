@@ -6,12 +6,12 @@ import (
 	"strconv"
 
 	"github.com/AdguardTeam/golibs/log"
-	"github.com/AdguardTeam/gomitmproxy"
+	"github.com/AdguardTeam/urlfilter/proxy"
 )
 
 // MITMProxy - MITM proxy structure
 type MITMProxy struct {
-	proxy *gomitmproxy.Proxy
+	proxy *proxy.Server
 	conf  Config
 }
 
@@ -56,25 +56,30 @@ func (p *MITMProxy) Start() error {
 
 // Create a gomitmproxy object
 func (p *MITMProxy) create() bool {
-	c := gomitmproxy.Config{}
+	c := proxy.Config{}
 	addr, port, err := net.SplitHostPort(p.conf.ListenAddr)
 	if err != nil {
 		log.Error("net.SplitHostPort: %s", err)
 		return false
 	}
 
-	c.ListenAddr = &net.TCPAddr{}
-	c.ListenAddr.IP = net.ParseIP(addr)
-	if c.ListenAddr.IP == nil {
+	c.CompressContentScript = true
+	c.ProxyConfig.ListenAddr = &net.TCPAddr{}
+	c.ProxyConfig.ListenAddr.IP = net.ParseIP(addr)
+	if c.ProxyConfig.ListenAddr.IP == nil {
 		log.Error("Invalid IP: %s", addr)
 		return false
 	}
-	c.ListenAddr.Port, err = strconv.Atoi(port)
-	if c.ListenAddr.IP == nil {
+	c.ProxyConfig.ListenAddr.Port, err = strconv.Atoi(port)
+	if c.ProxyConfig.ListenAddr.IP == nil {
 		log.Error("Invalid port number: %s", port)
 		return false
 	}
 
-	p.proxy = gomitmproxy.NewProxy(c)
+	p.proxy, err = proxy.NewServer(c)
+	if err != nil {
+		log.Error("proxy.NewServer: %s", err)
+		return false
+	}
 	return true
 }

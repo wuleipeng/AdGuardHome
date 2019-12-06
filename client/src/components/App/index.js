@@ -95,9 +95,9 @@ class App extends Component {
                                 </div>
                             </div>
                         )}
+                        <Route path="/" exact component={Dashboard} />
                         {!dashboard.processing && dashboard.isCoreRunning && (
                             <Fragment>
-                                <Route path="/" exact component={Dashboard} />
                                 <Route path="/settings" component={Settings} />
                                 <Route path="/dns" component={Dns} />
                                 <Route path="/encryption" component={Encryption} />

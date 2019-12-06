@@ -140,55 +140,61 @@ export const getUpdateRequest = createAction('GET_UPDATE_REQUEST');
 export const getUpdateFailure = createAction('GET_UPDATE_FAILURE');
 export const getUpdateSuccess = createAction('GET_UPDATE_SUCCESS');
 
+const checkStatus = async (handleRequestSuccess, handleRequestError, maxCount = 60, attempts) => {
+    let count = attempts || 1;
+    let timeout;
+
+    if (count > maxCount) {
+        handleRequestError();
+        return false;
+    }
+
+    const rmTimeout = t => t && clearTimeout(t);
+    const setRecursiveTimeout = (time, ...args) => setTimeout(
+        checkStatus,
+        time,
+        ...args,
+    );
+
+    axios.get('control/status')
+        .then((response) => {
+            rmTimeout(timeout);
+            if (response && response.status === 200) {
+                handleRequestSuccess(response);
+            }
+            timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
+        })
+        .catch(() => {
+            rmTimeout(timeout);
+            timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
+        });
+
+    return false;
+};
+
 export const getUpdate = () => async (dispatch, getState) => {
     const { dnsVersion } = getState().dashboard;
 
     dispatch(getUpdateRequest());
-    try {
-        await apiClient.getUpdate();
-
-        const checkUpdate = async (attempts) => {
-            let count = attempts || 1;
-            let timeout;
-
-            if (count > 60) {
-                dispatch(addNoticeToast({ error: 'update_failed' }));
-                dispatch(getUpdateFailure());
-                return false;
-            }
-
-            const rmTimeout = t => t && clearTimeout(t);
-            const setRecursiveTimeout = (time, ...args) => setTimeout(
-                checkUpdate,
-                time,
-                ...args,
-            );
-
-            axios.get('control/status')
-                .then((response) => {
-                    rmTimeout(timeout);
-                    if (response && response.status === 200) {
-                        const responseVersion = response.data && response.data.version;
-
-                        if (dnsVersion !== responseVersion) {
-                            dispatch(getUpdateSuccess());
-                            window.location.reload(true);
-                        }
-                    }
-                    timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
-                })
-                .catch(() => {
-                    rmTimeout(timeout);
-                    timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
-                });
-
-            return false;
-        };
-
-        checkUpdate();
-    } catch (error) {
+    const handleRequestError = () => {
         dispatch(addNoticeToast({ error: 'update_failed' }));
         dispatch(getUpdateFailure());
+    };
+
+    const handleRequestSuccess = (response) => {
+        const responseVersion = response.data && response.data.version;
+
+        if (dnsVersion !== responseVersion) {
+            dispatch(getUpdateSuccess());
+            window.location.reload(true);
+        }
+    };
+
+    try {
+        await apiClient.getUpdate();
+        checkStatus(handleRequestSuccess, handleRequestError);
+    } catch (error) {
+        handleRequestError();
     }
 };
 
@@ -234,15 +240,27 @@ export const dnsStatusSuccess = createAction('DNS_STATUS_SUCCESS');
 
 export const getDnsStatus = () => async (dispatch) => {
     dispatch(dnsStatusRequest());
-    try {
-        const dnsStatus = await apiClient.getGlobalStatus();
-        dispatch(dnsStatusSuccess(dnsStatus));
-        dispatch(getVersion());
-        dispatch(getTlsStatus());
-        dispatch(getProfile());
-    } catch (error) {
-        dispatch(addErrorToast({ error }));
+
+    const handleRequestError = () => {
+        dispatch(addErrorToast({ error: 'dns_status_error' }));
         dispatch(dnsStatusFailure());
+    };
+
+    const handleRequestSuccess = (response) => {
+        const dnsStatus = response.data;
+        const runningStatus = dnsStatus && dnsStatus.running;
+        if (runningStatus === true) {
+            dispatch(dnsStatusSuccess(dnsStatus));
+            dispatch(getVersion());
+            dispatch(getTlsStatus());
+            dispatch(getProfile());
+        }
+    };
+
+    try {
+        checkStatus(handleRequestSuccess, handleRequestError, Infinity);
+    } catch (error) {
+        handleRequestError(error);
     }
 };
 

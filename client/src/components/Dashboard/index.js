@@ -41,10 +41,9 @@ class Dashboard extends Component {
 
     render() {
         const { dashboard, stats, t } = this.props;
-        const dashboardProcessing =
-            dashboard.processing ||
-            stats.processingStats ||
-            stats.processingGetConfig;
+        const statsProcessing = stats.processingStats || stats.processingGetConfig;
+        const dashboardProcessing = dashboard.processing;
+        const processing = statsProcessing || dashboardProcessing;
 
         const subtitle =
             stats.interval === 1
@@ -81,8 +80,15 @@ class Dashboard extends Component {
                         {refreshFullButton}
                     </div>
                 </PageTitle>
-                {dashboardProcessing && <Loading />}
-                {!dashboardProcessing && (
+                {processing &&
+                <Fragment>
+                    {dashboardProcessing &&
+                    <h6 className="page-title">
+                        <Trans>dns_start</Trans>
+                    </h6>}
+                    <Loading />
+                </Fragment>}
+                {!processing && (
                     <div className="row row-cards">
                         <div className="col-lg-12">
                             <Statistics

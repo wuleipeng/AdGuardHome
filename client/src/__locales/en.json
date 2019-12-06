@@ -283,6 +283,8 @@
     "update_announcement": "AdGuard Home {{version}} is now available! <0>Click here</0> for more info.",
     "setup_guide": "Setup guide",
     "dns_addresses": "DNS addresses",
+    "dns_start": "DNS server is starting up",
+    "dns_status_error": "Error of getting DNS server status",
     "down": "Down",
     "fix": "Fix",
     "dns_providers": "Here is a <0>list of known DNS providers</0> to choose from.",

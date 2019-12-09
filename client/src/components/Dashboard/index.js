@@ -9,8 +9,6 @@ import QueriedDomains from './QueriedDomains';
 import BlockedDomains from './BlockedDomains';
 
 import PageTitle from '../ui/PageTitle';
-import Loading from '../ui/Loading';
-import Card from '../ui/Card';
 import './Dashboard.css';
 
 class Dashboard extends Component {
@@ -43,8 +41,6 @@ class Dashboard extends Component {
     render() {
         const { dashboard, stats, t } = this.props;
         const statsProcessing = stats.processingStats || stats.processingGetConfig;
-        const dashboardProcessing = dashboard.processing;
-        const processing = statsProcessing || dashboardProcessing;
 
         const subtitle =
             stats.interval === 1
@@ -81,19 +77,7 @@ class Dashboard extends Component {
                         {refreshFullButton}
                     </div>
                 </PageTitle>
-                {processing &&
-                    <Fragment>
-                        {dashboardProcessing &&
-                            <Card>
-                                <h6 className="lead text-center py-6">
-                                    <Trans>dns_start</Trans>
-                                </h6>
-                            </Card>
-                        }
-                        <Loading />
-                    </Fragment>
-                }
-                {!processing && (
+                {!statsProcessing && (
                     <div className="row row-cards">
                         <div className="col-lg-12">
                             <Statistics

@@ -156,19 +156,18 @@ const checkStatus = async (handleRequestSuccess, handleRequestError, maxCount = 
         ...args,
     );
 
-    axios.get('control/status')
-        .then((response) => {
-            rmTimeout(timeout);
-            if (response && response.status === 200) {
-                handleRequestSuccess(response);
-            }
+    try {
+        const response = await axios.get('control/status');
+        rmTimeout(timeout);
+        if (response && response.status === 200) {
+            handleRequestSuccess(response);
+        } else {
             timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
-        })
-        .catch(() => {
-            rmTimeout(timeout);
-            timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
-        });
-
+        }
+    } catch (error) {
+        rmTimeout(timeout);
+        timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
+    }
     return false;
 };
 

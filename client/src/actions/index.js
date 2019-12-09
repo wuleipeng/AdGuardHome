@@ -279,36 +279,6 @@ export const getDnsSettings = () => async (dispatch) => {
     }
 };
 
-export const enableDnsRequest = createAction('ENABLE_DNS_REQUEST');
-export const enableDnsFailure = createAction('ENABLE_DNS_FAILURE');
-export const enableDnsSuccess = createAction('ENABLE_DNS_SUCCESS');
-
-export const enableDns = () => async (dispatch) => {
-    dispatch(enableDnsRequest());
-    try {
-        await apiClient.startGlobalFiltering();
-        dispatch(enableDnsSuccess());
-    } catch (error) {
-        dispatch(addErrorToast({ error }));
-        dispatch(enableDnsFailure());
-    }
-};
-
-export const disableDnsRequest = createAction('DISABLE_DNS_REQUEST');
-export const disableDnsFailure = createAction('DISABLE_DNS_FAILURE');
-export const disableDnsSuccess = createAction('DISABLE_DNS_SUCCESS');
-
-export const disableDns = () => async (dispatch) => {
-    dispatch(disableDnsRequest());
-    try {
-        await apiClient.stopGlobalFiltering();
-        dispatch(disableDnsSuccess());
-    } catch (error) {
-        dispatch(disableDnsFailure(error));
-        dispatch(addErrorToast({ error }));
-    }
-};
-
 export const handleUpstreamChange = createAction('HANDLE_UPSTREAM_CHANGE');
 export const setUpstreamRequest = createAction('SET_UPSTREAM_REQUEST');
 export const setUpstreamFailure = createAction('SET_UPSTREAM_FAILURE');

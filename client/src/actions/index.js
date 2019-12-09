@@ -140,7 +140,7 @@ export const getUpdateRequest = createAction('GET_UPDATE_REQUEST');
 export const getUpdateFailure = createAction('GET_UPDATE_FAILURE');
 export const getUpdateSuccess = createAction('GET_UPDATE_SUCCESS');
 
-const checkStatus = async (handleRequestSuccess, handleRequestError, maxCount = 60, attempts) => {
+const checkStatus = async (handleRequestSuccess, handleRequestError, attempts, maxCount = 60) => {
     let count = attempts || 1;
     let timeout;
 
@@ -150,6 +150,7 @@ const checkStatus = async (handleRequestSuccess, handleRequestError, maxCount = 
     }
 
     const rmTimeout = t => t && clearTimeout(t);
+
     const setRecursiveTimeout = (time, ...args) => setTimeout(
         checkStatus,
         time,
@@ -158,11 +159,16 @@ const checkStatus = async (handleRequestSuccess, handleRequestError, maxCount = 
 
     try {
         const response = await axios.get('control/status');
-        rmTimeout(timeout);
         if (response && response.status === 200) {
             handleRequestSuccess(response);
-        } else {
-            timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
+            if (response.data.running === false) {
+                timeout = setRecursiveTimeout(
+                    CHECK_TIMEOUT,
+                    handleRequestSuccess,
+                    handleRequestError,
+                    count += 1,
+                );
+            }
         }
     } catch (error) {
         rmTimeout(timeout);
@@ -243,6 +249,7 @@ export const getDnsStatus = () => async (dispatch) => {
     const handleRequestError = () => {
         dispatch(addErrorToast({ error: 'dns_status_error' }));
         dispatch(dnsStatusFailure());
+        window.location.reload(true);
     };
 
     const handleRequestSuccess = (response) => {
@@ -257,7 +264,7 @@ export const getDnsStatus = () => async (dispatch) => {
     };
 
     try {
-        checkStatus(handleRequestSuccess, handleRequestError, Infinity);
+        checkStatus(handleRequestSuccess, handleRequestError);
     } catch (error) {
         handleRequestError(error);
     }

@@ -159,6 +159,7 @@ const checkStatus = async (handleRequestSuccess, handleRequestError, attempts, m
 
     try {
         const response = await axios.get('control/status');
+        rmTimeout(timeout);
         if (response && response.status === 200) {
             handleRequestSuccess(response);
             if (response.data.running === false) {
@@ -172,7 +173,12 @@ const checkStatus = async (handleRequestSuccess, handleRequestError, attempts, m
         }
     } catch (error) {
         rmTimeout(timeout);
-        timeout = setRecursiveTimeout(CHECK_TIMEOUT, count += 1);
+        timeout = setRecursiveTimeout(
+            CHECK_TIMEOUT,
+            handleRequestSuccess,
+            handleRequestError,
+            count += 1,
+        );
     }
     return false;
 };

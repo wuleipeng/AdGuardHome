@@ -10,6 +10,7 @@ import BlockedDomains from './BlockedDomains';
 
 import PageTitle from '../ui/PageTitle';
 import Loading from '../ui/Loading';
+import Card from '../ui/Card';
 import './Dashboard.css';
 
 class Dashboard extends Component {
@@ -81,13 +82,17 @@ class Dashboard extends Component {
                     </div>
                 </PageTitle>
                 {processing &&
-                <Fragment>
-                    {dashboardProcessing &&
-                    <h6 className="page-title">
-                        <Trans>dns_start</Trans>
-                    </h6>}
-                    <Loading />
-                </Fragment>}
+                    <Fragment>
+                        {dashboardProcessing &&
+                            <Card>
+                                <h6 className="lead text-center py-6">
+                                    <Trans>dns_start</Trans>
+                                </h6>
+                            </Card>
+                        }
+                        <Loading />
+                    </Fragment>
+                }
                 {!processing && (
                     <div className="row row-cards">
                         <div className="col-lg-12">

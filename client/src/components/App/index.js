@@ -88,13 +88,13 @@ class App extends Component {
                     <LoadingBar className="loading-bar" updateTime={1000} />
                     <Route component={Header} />
                     <div className="container container--wrap">
-                        {/* {!dashboard.processing && !dashboard.isCoreRunning && ( */}
+                        {!dashboard.processing && !dashboard.isCoreRunning && (
                             <div className="row row-cards">
                                 <div className="col-lg-12">
                                     <Status reloadPage={this.reloadPage} />
                                 </div>
                             </div>
-                        {/* )} */}
+                        )}
                         <Route path="/" exact component={Dashboard} />
                         {!dashboard.processing && dashboard.isCoreRunning && (
                             <Fragment>

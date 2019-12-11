@@ -1,20 +1,16 @@
 import React, { Fragment } from 'react';
 import { Trans } from 'react-i18next';
 
-import { R_IPV4, R_MAC, R_HOST, R_IPV6, UNSAFE_PORTS } from '../helpers/constants';
+import { R_IPV4, R_MAC, R_HOST, R_IPV6, R_CIDR, UNSAFE_PORTS } from '../helpers/constants';
 
 export const renderField = ({
-    input,
-    id,
-    className,
-    placeholder,
-    type,
-    disabled,
-    autoComplete,
-    meta: { touched, error },
-}) => (
-    <Fragment>
-        <input
+    // eslint-disable-next-line react/prop-types
+    input, id, className, placeholder, type, disabled,
+    // eslint-disable-next-line react/prop-types
+    autoComplete, textarea, meta: { touched, error },
+}) => {
+    function renderTextarea() {
+        return (<textarea
             {...input}
             id={id}
             placeholder={placeholder}
@@ -22,12 +18,32 @@ export const renderField = ({
             className={className}
             disabled={disabled}
             autoComplete={autoComplete}
-        />
-        {!disabled &&
+        />);
+    }
+
+    function renderInput() {
+        return (<input
+            {...input}
+            id={id}
+            placeholder={placeholder}
+            type={type}
+            className={className}
+            disabled={disabled}
+            autoComplete={autoComplete}
+        />);
+    }
+
+    const component = textarea ? renderTextarea() : renderInput();
+
+    return (
+        <Fragment>
+            {component}
+            {!disabled &&
             touched &&
             (error && <span className="form__message form__message--error">{error}</span>)}
-    </Fragment>
-);
+        </Fragment>
+    );
+};
 
 export const renderGroupField = ({
     input,
@@ -161,6 +177,20 @@ export const ipv4 = (value) => {
     return false;
 };
 
+export const multilineClientId = (values) => {
+    if (values && !values.trim().split('\n').every((value) => {
+        const trimmedValue = value.trim();
+        if (!trimmedValue) {
+            return true;
+        }
+        return (R_IPV4.test(trimmedValue) || R_IPV6.test(trimmedValue)
+                || R_MAC.test(trimmedValue) || R_CIDR.test(trimmedValue));
+    })) {
+        return <Trans>form_error_ip_format</Trans>;
+    }
+    return undefined;
+};
+
 export const ipv6 = (value) => {
     if (value && !new RegExp(R_IPV6).test(value)) {
         return <Trans>form_error_ip6_format</Trans>;
@@ -217,6 +247,13 @@ export const domain = (value) => {
         return <Trans>form_error_domain_format</Trans>;
     }
     return false;
+};
+
+export const multilineDomain = (values) => {
+    if (values && !values.trim().split('\n').every(value => (value ? R_HOST.test(value.trim()) : true))) {
+        return <Trans>form_error_domain_format</Trans>;
+    }
+    return undefined;
 };
 
 export const answer = (value) => {

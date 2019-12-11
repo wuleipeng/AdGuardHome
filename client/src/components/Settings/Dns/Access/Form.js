@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Field, reduxForm } from 'redux-form';
 import { Trans, withNamespaces } from 'react-i18next';
 import flow from 'lodash/flow';
+import { renderField, multilineClientId, multilineDomain } from '../../../../helpers/form';
 
 const Form = (props) => {
     const {
@@ -21,10 +22,12 @@ const Form = (props) => {
                 <Field
                     id="allowed_clients"
                     name="allowed_clients"
-                    component="textarea"
+                    component={renderField}
+                    textarea={true}
                     type="text"
                     className="form-control form-control--textarea"
                     disabled={processingSet}
+                    validate={multilineClientId}
                 />
             </div>
             <div className="form__group mb-5">
@@ -37,10 +40,12 @@ const Form = (props) => {
                 <Field
                     id="disallowed_clients"
                     name="disallowed_clients"
-                    component="textarea"
+                    component={renderField}
+                    textarea={true}
                     type="text"
                     className="form-control form-control--textarea"
                     disabled={processingSet}
+                    validate={multilineClientId}
                 />
             </div>
             <div className="form__group mb-5">
@@ -53,10 +58,12 @@ const Form = (props) => {
                 <Field
                     id="blocked_hosts"
                     name="blocked_hosts"
-                    component="textarea"
+                    component={renderField}
+                    textarea={true}
                     type="text"
                     className="form-control form-control--textarea"
                     disabled={processingSet}
+                    validate={multilineDomain}
                 />
             </div>
             <div className="card-actions">
@@ -81,6 +88,7 @@ Form.propTypes = {
     initialValues: PropTypes.object.isRequired,
     processingSet: PropTypes.bool.isRequired,
     t: PropTypes.func.isRequired,
+    textarea: PropTypes.bool,
 };
 
 export default flow([withNamespaces(), reduxForm({ form: 'accessForm' })])(Form);

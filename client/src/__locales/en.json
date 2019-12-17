@@ -427,5 +427,8 @@
     "whois": "Whois",
     "filtering_rules_learn_more": "<0>Learn more</0> about creating your own hosts blocklists.",
     "blocked_by_response": "Blocked by CNAME or IP in response",
-    "try_again": "Try again"
+    "try_again": "Try again",
+    "autofix_warning_text": "If you click \"Fix\", AdGuardHome will configure your system to use AdGuardHome DNS server.",
+    "autofix_warning_list": "It will perform these tasks: <0>Deactivate system DNSStubListener</0> <0>Set DNS server address to 127.0.0.1</0> <0>Replace symbolic link target of /etc/resolv.conf to /run/systemd/resolve/resolv.conf</0> <0>Stop DNSStubListener (reload systemd-resolved service)</0>",
+    "autofix_warning_result": "As a result all DNS requests from your system will be processed by AdGuardHome by default."
 }

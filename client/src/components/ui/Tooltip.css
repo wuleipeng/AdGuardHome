@@ -73,3 +73,7 @@
     border-top: none;
     border-bottom: 6px solid #585965;
 }
+
+.tooltip-custom--lower {
+    top: 16px;
+}

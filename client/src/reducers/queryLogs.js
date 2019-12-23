@@ -102,10 +102,14 @@ const queryLogs = handleActions(
 
         [actions.setLogsConfigRequest]: state => ({ ...state, processingSetConfig: true }),
         [actions.setLogsConfigFailure]: state => ({ ...state, processingSetConfig: false }),
-        [actions.setLogsConfigSuccess]: (state, { payload }) => ({
+        [actions.setLogsConfigSuccess]: (
+            state,
+            { payload, payload: { interval, displayDate } },
+        ) => ({
             ...state,
             ...payload,
             processingSetConfig: false,
+            displayDate: interval !== 1 && displayDate,
         }),
 
         [actions.getAdditionalLogsRequest]: state => ({
@@ -131,6 +135,7 @@ const queryLogs = handleActions(
         pages: 0,
         total: 0,
         enabled: true,
+        displayDate: false,
         oldest: '',
         filter: DEFAULT_LOGS_FILTER,
         isFiltered: false,
